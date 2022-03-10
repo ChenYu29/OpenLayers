@@ -1,0 +1,5 @@
+{"type":"FeatureCollection","features":[
+  {"type":"Feature","geometry":{"type":"GeometryCollection","geometries":[]},"properties":null},
+  {"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[3874459.6474830136,7514176.974752967],[6144333.639439609,4657266.60556622],[11897290.136295114,7709855.767163019],[3874459.6474830136,7514176.974752967]]]},"properties":null},
+  {"type":"Feature","geometry":{"type":"Point","coordinates":[-5322443.595789393,13227997.713126462]},"properties":null}
+]}

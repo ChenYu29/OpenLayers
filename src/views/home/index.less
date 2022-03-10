@@ -1,0 +1,136 @@
+@import "./../../static/styles/colors";
+@import "./../../static/styles/space";
+.site-layout {
+  background: #fff !important;
+}
+.content {
+  width: 100%;
+  height: calc(100vh - 60px);
+  padding: @sm-space;
+  overflow: auto;
+  background-color: #f0f2f5;
+  position: relative;
+}
+.menu {
+  overflow-y: hidden;
+  height: calc(100vh - 112px); // 底部菜单折叠按钮和顶部栏的高度
+}
+.menu:hover {
+  overflow-y: auto;
+}
+.menu::-webkit-scrollbar {
+  width: 8px;
+  background-color: @scroll-background;
+}
+.menu::-webkit-scrollbar-thumb {
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+  background-color: @primary-color-opacity-4;
+}
+.back-top {
+  width: 40px;
+  height: 40px;
+  border-radius: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: @primary-color
+}
+.back-top-icon {
+  color: #fff;
+  font-size: 20px;
+}
+.header-title-icon {
+  cursor: pointer;
+  color: @header-text-color;
+  height: 56px;
+}
+.header-title-icon:hover {
+  color: @primary-color;
+}
+.header-title {
+  margin-left: 10px;
+  color: @header-text-color;
+  font-weight: 600;
+  font-size: 18px;
+  letter-spacing: 2px;
+}
+.header-content {
+  display: flex;
+  align-items: center;
+}
+.container {
+  height: 25px;
+  width: 25px;
+  border-radius: 2px;
+}
+.color-choose{
+  height: 25px;
+  width: 25px;
+  border-color: #000000;
+  border-style: solid;
+  border-radius: 2px;
+}
+// 覆盖谷歌浏览器默认输入框样式
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-transition-delay: 99999s;
+  -webkit-transition: color 99999s ease-out, background-color 99999s ease-out;
+}
+
+.locationText {
+  cursor: pointer;
+}
+.locationText:hover {
+  color: @primary-color;
+}
+
+// 遮罩层
+.portal-container {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-color: rgba(0, 0, 0, 0.68);
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+}
+// 动态增减表单项
+.dynamic-delete-button {
+  position: relative;
+  top: 4px;
+  margin: 0 8px;
+  color: #999;
+  font-size: 24px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.dynamic-delete-button:hover {
+  color: #777;
+}
+.dynamic-delete-button[disabled] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+// 地图上的搜索框的结果框的位置，原本位置是bottom：0，会出现滚动条。
+.amap-sug-result {
+  top: 0px;
+}
+.auto-item {
+  color: rgba(0, 0, 0, 0.85);
+}
+.map-label {
+  color: #034083;
+  font-size: 16px;
+  font-weight: 600;
+  text-shadow: #fff 1px 1px;
+}
+.amap-marker-label {
+  border: none !important;;
+  background: none !important;
+}

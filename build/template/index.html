@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>社会综合治理</title>
+<!--    <script type="text/javascript" src="https://webapi.amap.com/maps?v=1.4.15&key=657b4f5fb75680f5df5b1c6e80fbdbae&plugin=AMap.MouseTool&plugin=AMap.DistrictSearch&plugin=AMap.Autocomplete&plugin=AMap.PolyEditor"></script>-->
+    <script type="text/javascript" src="https://webapi.amap.com/maps?v=2.0&key=657b4f5fb75680f5df5b1c6e80fbdbae&plugin=AMap.MouseTool&plugin=AMap.DistrictSearch&plugin=AMap.Autocomplete&plugin=AMap.PolyEditor,AMap.PlaceSearch,AMap.Geocoder,AMap.CircleEditor"></script>
+    <script src="https://webapi.amap.com/loca?v=2.0.0&key=657b4f5fb75680f5df5b1c6e80fbdbae"></script>
+    <script>
+        // string.includes 垫片
+        if (!String.prototype.includes) {
+            String.prototype.includes = function(search, start) {
+                'use strict';
+                if (typeof start !== 'number') {
+                    start = 0;
+                }
+                if (start + search.length > this.length) {
+                    return false;
+                } else {
+                    return this.indexOf(search, start) !== -1;
+                }
+            };
+        }
+    </script>
+</head>
+<body>
+    <div id="app"></div>
+</body>
+</html>
