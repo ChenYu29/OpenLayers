@@ -23,6 +23,8 @@ import { Feature } from 'ol';
 import { circular, fromCircle } from 'ol/geom/Polygon';
 import { getDistance } from 'ol/sphere';
 import { Fill, Stroke, Style } from 'ol/style';
+import { TileWMS } from 'ol/source';
+import OSMXML from 'ol/format/OSMXML';
 const { Text } = Typography;
 
 enum EDrawType {
@@ -63,18 +65,37 @@ const OpenLayersMap = () => {
       ]),
       layers: [
         // 地图数据源
-        new TileLayer({
-          source: new OSM(),
-        }),
+        // new TileLayer({
+        //   source: new OSM(),
+        // }),
+        // new VectorLayer({
+        //   source: new VectorSource({
+        //     format: new OSMXML()
+        //   })
+        // })
         // 向量数据呈现客户端，作为向量。即使在动画期间，此图层类型也提供了最准确的渲染。点和标签在旋转景色中保持直立。对于非常大量的矢量数据，PAN和缩放动画期间的性能可能会受到影响。
-        new VectorLayer({
-          source: source,
+        // new VectorLayer({
+        //   source: source,
+        // }),
+        new TileLayer({
+          source: new TileWMS({
+            url: 'http://192.168.3.251:7009/geoserver/coral/wms',
+            params: {'LAYERS': 'coral:20220228112357,20220228132142', 'TILED': true},
+            serverType: 'geoserver',
+            crossOrigin: 'anonymous',
+          }),
         })
       ],
       target: 'mymap',
       view: new View({
-        center: [19.557764, 111.346207],
-        zoom: 2,
+        /**
+         * [112.3303986, 16.9504106] 经纬度
+         * 投影projection有2种
+         * 'EPSG:4326' 全球通用  被转换的坐标系
+         * EPSG:3857 web地图专用 openlayers默认的   需要被转换的坐标系
+         */
+        center: transform([112.3303986, 16.9504106], 'EPSG:4326', 'EPSG:3857'),
+        zoom: 14,
       }),
     });
     snap = new Snap({ source: source });
@@ -89,7 +110,6 @@ const OpenLayersMap = () => {
       if (drawType === EDrawType.Circle) {
         // 将圆转为一个多边形
         geometryFunction = (coordinates: any, geometry: any, projection: any) => {
-          console.log('geometry', geometry);
           if (!geometry) {
             geometry = new GeometryCollection([
               new Polygon([]),
@@ -122,8 +142,11 @@ const OpenLayersMap = () => {
   };
   const getFeatures = () => {
     let features = source.getFeatures();
+    console.log('source', source);
     features.forEach((item: any) => {
-      let geo = new GeoJSON().writeFeature(item)
+      let geo = new GeoJSON().writeGeometry(item.getGeometry())
+      console.log('features', geo);
+      // console.log('features', item.getGeometry());
     });
     let geos = new GeoJSON().writeFeatures(features)
   };
@@ -140,13 +163,15 @@ const OpenLayersMap = () => {
     { label: '无', value: '' },
   ];
   return (
-    <Row id="fullMap" className="fullscreen" style={{ backgroundColor: '#eee'}}>
-      <Row>
-        <Space direction="vertical">
-          <Radio.Group options={drawOptions} buttonStyle="solid" optionType="button" onChange={drawTypeChange} />
-        </Space>
-      </Row>
-      <div id="mymap" className="mymap" style={{ width: 1000, height: 800 }}></div>
+    <Row id="fullMap" className="fullscreen" wrap={false} style={{ backgroundColor: '#eee'}}>
+      <div>
+        <Row>
+          <Space direction="vertical">
+            <Radio.Group options={drawOptions} buttonStyle="solid" optionType="button" onChange={drawTypeChange} />
+          </Space>
+        </Row>
+        <div id="mymap" className="mymap" style={{ width: 1000, height: 800 }}></div>
+      </div>
       <Space direction="vertical">
         <Text>同时按住 Shift键 和鼠标点击可开始连续画多边形</Text>
         <Text id="mouse-position"></Text>
