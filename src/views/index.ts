@@ -10,3 +10,6 @@ export { default as Home } from '@views/home/Home';
 export { default as NotFound } from '@views/error/NotFound';
 
 export { default as OpenLayersMap } from '@views/openLayers/OpenLayersMap';
+export { default as SimpleMap } from '@views/openLayers/SimpleMap';
+export { default as ToolMap } from '@views/openLayers/ToolMap';
+export { default as ServerMap } from '@views/openLayers/ServerMap';

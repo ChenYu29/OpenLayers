@@ -7,7 +7,7 @@ import React, { createContext, useReducer } from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { ErrorBoundary } from '@components/index';
 import {
-  NotFound, Home, Welcome, OpenLayersMap,
+  NotFound, Home, Welcome, OpenLayersMap, SimpleMap, ToolMap, ServerMap,
 } from '@views/index';
 import { platform } from '@utils/CommonVars';
 import { homeInit, homeReducer } from '@views/home/HomeReducer';
@@ -23,7 +23,11 @@ const App = () => {
           <Home>
             <Switch>
               <ErrorBoundary>
-                <Route exact path={platform} component={OpenLayersMap} />
+                <Route exact path={platform} component={SimpleMap} />
+                <Route exact path={platform + 'simpleMap'} component={SimpleMap} />
+                <Route exact path={platform + 'toolMap'} component={ToolMap} />
+                <Route exact path={platform + 'serverMap'} component={ServerMap} />
+                {/*<Route exact path={platform} component={OpenLayersMap} />*/}
               </ErrorBoundary>
               <Route component={NotFound} />
             </Switch>

@@ -6,26 +6,28 @@
 import React, { useEffect, useState } from 'react';
 import 'ol/ol.css';
 import Map from 'ol/Map';
-import OSM from 'ol/source/OSM';
 import TileLayer from 'ol/layer/Tile';
 import View from 'ol/View';
-import { Button, Radio, Row, Space, Typography } from 'antd';
+import { Button, Form, Input, Radio, Row, Space, Typography } from 'antd';
 import { Draw, Modify, Snap } from 'ol/interaction';
 import VectorSource from 'ol/source/Vector';
-import VectorLayer from 'ol/layer/Vector';
-import { FullScreen, defaults as defaultControls, MousePosition } from 'ol/control';
-import { DragRotateAndZoom, defaults as defaultInteractions } from 'ol/interaction';
+import { defaults as defaultControls, FullScreen, MousePosition } from 'ol/control';
 import { createStringXY } from 'ol/coordinate';
 import { GeoJSON } from 'ol/format';
-import { Circle, Geometry, GeometryCollection, Point, Polygon } from 'ol/geom';
-import { toLonLat, transform } from 'ol/proj';
-import { Feature } from 'ol';
-import { circular, fromCircle } from 'ol/geom/Polygon';
+import { GeometryCollection, Polygon } from 'ol/geom';
+import { transform } from 'ol/proj';
+import { circular } from 'ol/geom/Polygon';
 import { getDistance } from 'ol/sphere';
-import { Fill, Stroke, Style } from 'ol/style';
-import { TileWMS } from 'ol/source';
-import OSMXML from 'ol/format/OSMXML';
+import { OSM, TileArcGISRest, WMTS } from 'ol/source';
+import { getRules } from '@utils/CommonFunc';
+import { RuleType } from '@utils/CommonVars';
+import WMTSTileGrid from 'ol/tilegrid/WMTS';
+import { getTopLeft, getWidth } from 'ol/extent';
+import {get as getProjection} from 'ol/proj';
+import VectorLayer from 'ol/layer/Vector';
+
 const { Text } = Typography;
+const { TextArea } = Input;
 
 enum EDrawType {
   Point = 'Point',
@@ -45,6 +47,7 @@ let source = null;
 const geometryJson = require('./geometry.json');
 const OpenLayersMap = () => {
   const [drawType, setDrawType] = useState<any>(null);
+  const [form] = Form.useForm();
   useEffect(() => {
     // VectorSource 提供矢量图层的功能源。此源提供的矢量功能适合编辑。
     const mousePositionControl = new MousePosition({
@@ -64,27 +67,32 @@ const OpenLayersMap = () => {
         mousePositionControl, // 鼠标移动的位置信息
       ]),
       layers: [
-        // 地图数据源
         // new TileLayer({
-        //   source: new OSM(),
+        //   source: new TileArcGISRest({
+        //     url: 'http://192.168.3.251:6080/arcgis/rest/services//SampleWorldCities/MapServer',
+        //   }),
         // }),
+        // 地图数据源
+        new TileLayer({
+          source: new OSM(),
+        }),
         // new VectorLayer({
         //   source: new VectorSource({
         //     format: new OSMXML()
         //   })
-        // })
-        // 向量数据呈现客户端，作为向量。即使在动画期间，此图层类型也提供了最准确的渲染。点和标签在旋转景色中保持直立。对于非常大量的矢量数据，PAN和缩放动画期间的性能可能会受到影响。
-        // new VectorLayer({
-        //   source: source,
         // }),
-        new TileLayer({
-          source: new TileWMS({
-            url: 'http://192.168.3.251:7009/geoserver/coral/wms',
-            params: {'LAYERS': 'coral:20220228112357,20220228132142', 'TILED': true},
-            serverType: 'geoserver',
-            crossOrigin: 'anonymous',
-          }),
-        })
+        // 向量数据呈现客户端，作为向量。即使在动画期间，此图层类型也提供了最准确的渲染。点和标签在旋转景色中保持直立。对于非常大量的矢量数据，PAN和缩放动画期间的性能可能会受到影响。
+        new VectorLayer({
+          source: source,
+        }),
+        // new TileLayer({
+        //   source: new TileWMS({
+        //     url: 'http://192.168.3.251:7009/geoserver/coral/wms',
+        //     params: {'LAYERS': 'coral:20220228112357,20220228132142', 'TILED': true},
+        //     serverType: 'geoserver',
+        //     crossOrigin: 'anonymous',
+        //   }),
+        // })
       ],
       target: 'mymap',
       view: new View({
@@ -94,8 +102,10 @@ const OpenLayersMap = () => {
          * 'EPSG:4326' 全球通用  被转换的坐标系
          * EPSG:3857 web地图专用 openlayers默认的   需要被转换的坐标系
          */
-        center: transform([112.3303986, 16.9504106], 'EPSG:4326', 'EPSG:3857'),
-        zoom: 14,
+        // center: transform([113.307649675, 23.1200491021], 'EPSG:4326', 'EPSG:3857'),
+        center: transform([114.419, 11.415], 'EPSG:4326', 'EPSG:3857'),
+        // center: [-10997148, 4569099],
+        zoom: 10,
       }),
     });
     snap = new Snap({ source: source });
@@ -142,13 +152,52 @@ const OpenLayersMap = () => {
   };
   const getFeatures = () => {
     let features = source.getFeatures();
-    console.log('source', source);
     features.forEach((item: any) => {
       let geo = new GeoJSON().writeGeometry(item.getGeometry())
-      console.log('features', geo);
       // console.log('features', item.getGeometry());
     });
     let geos = new GeoJSON().writeFeatures(features)
+  };
+  const connectTest = () => {
+    form.validateFields().then((values: any) => {
+      if (values.type === 'rest') {
+        let layers = new TileLayer({
+          source: new TileArcGISRest({
+            url: values.url,
+          }),
+        });
+        map.addLayer(layers);
+      } else {
+        const projection = getProjection(values.epsg || 'EPSG:3857');
+        const tileSizePixels = 256;
+        const tileSizeMtrs = getWidth(projection.getExtent()) / tileSizePixels;
+        const matrixIds = [];
+        const resolutions = [];
+        for (let i = 0; i <= 14; i++) {
+          matrixIds[i] = i;
+          resolutions[i] = tileSizeMtrs / Math.pow(2, i);
+        }
+        let layer = new TileLayer({
+          // opacity: 0.7,
+          source: new WMTS({
+            // url: 'https://mrdata.usgs.gov/mapcache/wmts',
+            url: values.url,
+            layer: values.layer,
+            matrixSet: values.matrixSet,
+            // format: 'image/png',
+            projection: projection,
+            tileGrid: new WMTSTileGrid({
+              origin: getTopLeft(projection.getExtent()),
+              resolutions: resolutions,
+              matrixIds: matrixIds,
+            }),
+            // style: 'default',
+            style: 'tiger_roads',
+          }),
+        });
+        map.addLayer(layer);
+      }
+    });
   };
   const drawOptions = [
     { label: '点', value: EDrawType.Point },
@@ -176,6 +225,29 @@ const OpenLayersMap = () => {
         <Text>同时按住 Shift键 和鼠标点击可开始连续画多边形</Text>
         <Text id="mouse-position"></Text>
         <Button onClick={getFeatures}>获取图形信息</Button>
+        <Form form={form}>
+          <Form.Item label="服务类型" name="type" rules={getRules(RuleType.selectRequired)}>
+            <Radio.Group options={[{ label: 'wmts(geoserver)', value: 'wmts' }, { label: 'rest(ArcGIS Server)', value: 'rest' }, ]} buttonStyle="solid" optionType="button" />
+          </Form.Item>
+          <Form.Item label="连接地址" name="url" rules={getRules(RuleType.required)} initialValue="http://10.3.1.52/cia_w/wmts">
+            <TextArea />
+          </Form.Item>
+          <Form.Item label="layer" name="layer" rules={getRules(RuleType.required)} initialValue="cia">
+            <Input />
+          </Form.Item>
+          <Form.Item label="EPSG" name="epsg" rules={getRules(RuleType.required)} initialValue="EPSG:3857">
+            <Input />
+          </Form.Item>
+          <Form.Item label="瓦片集合" name="matrixSet" initialValue="w">
+            <Input />
+          </Form.Item>
+          <Form.Item>
+            <Space>
+              <Button onClick={() => form.resetFields()}>重置</Button>
+              <Button type="primary" onClick={connectTest}>测试连接</Button>
+            </Space>
+          </Form.Item>
+        </Form>
       </Space>
     </Row>
   );

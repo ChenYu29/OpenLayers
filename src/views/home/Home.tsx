@@ -13,6 +13,8 @@ import { PageSessionList, platform } from '@utils/CommonVars';
 import { HomeContext } from '../../index';
 import { post } from '@utils/Ajax';
 import './index.less';
+import 'ol/ol.css';
+import '../../views/openLayers/layers.less';
 import { HomeDispatchType } from '@views/home/HomeReducer';
 
 const { Content, Sider } = Layout;

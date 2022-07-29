@@ -11,8 +11,16 @@ import { platform, projectName } from '@utils/CommonVars';
 import './index.less';
 import logo from '@static/images/logo.png';
 
-const { SubMenu } = Menu;
-
+const menuList = [
+  {
+    label: '示例', key: 'demo', icon: <OrderedListOutlined />,
+    children: [
+      { label: '地图默认展示', key: 'simpleMap' },
+      { label: '工具栏', key: 'toolMap' },
+      { label: '展示其他服务数据', key: 'serverMap' }
+    ]
+  }
+];
 const Header = () => {
   const history = useHistory();
   const [current, setCurrent] = useState<any>('');
@@ -22,7 +30,7 @@ const Header = () => {
   };
   // 点击菜单
   const menuClick = (current: any) => {
-    history.push(platform + 'example/' + current.key);
+    history.push(platform + current.key);
     setCurrent(current.key);
   };
   return (
@@ -32,16 +40,7 @@ const Header = () => {
         <div className="header-title">{projectName}</div>
       </Row>
       <Row>
-        <Menu onClick={menuClick} selectedKeys={[current]} mode="horizontal" style={{ borderBottom: 'none' }}>
-          <SubMenu key="example" title="示例列表" icon={<OrderedListOutlined />}>
-            <Menu.ItemGroup title="Core 核心">
-              <Menu.Item key="bufferAttribute">流几何体属性</Menu.Item>
-              <Menu.Item key="bufferGeometry">流几何体</Menu.Item>
-              <Menu.Item key="interleavedBuffer">交叉存储流</Menu.Item>
-              <Menu.Item key="raycaster">光线投射</Menu.Item>
-            </Menu.ItemGroup>
-          </SubMenu>
-        </Menu>
+        <Menu onClick={menuClick} items={menuList} selectedKeys={[current]} mode="horizontal" style={{ borderBottom: 'none' }} />
       </Row>
     </Row>
   );

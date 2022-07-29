@@ -40,7 +40,7 @@ export const iconUrl: string = iconfont;
 /**
  * 项目名称
  **/
-export const projectName: string = '社会综合治理平台';
+export const projectName: string = 'OpenLayers使用Demo';
 
 export const pageHeaderStyle: React.CSSProperties = {
   margin: '-10px -10px 10px -10px',
