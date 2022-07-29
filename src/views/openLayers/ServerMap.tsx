@@ -79,8 +79,7 @@ const ServerMap = () => {
               resolutions: resolutions,
               matrixIds: matrixIds,
             }),
-            // style: 'default',
-            style: 'tiger_roads',
+            style: 'default',
           }),
         });
         map.addLayer(layer);
